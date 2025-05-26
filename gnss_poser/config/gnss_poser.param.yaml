@@ -1,0 +1,8 @@
+/**:
+  ros__parameters:
+    base_frame: imu_link_ned
+    gnss_base_frame: imu_link_ned
+    map_frame: map
+    first_navsat_msg: "/imu/nav_sat_fix"
+    second_navsat_msg: "/sbg_device2/imu/nav_sat_fix"
+    publish_topic: "/gnss_pose_cov"
