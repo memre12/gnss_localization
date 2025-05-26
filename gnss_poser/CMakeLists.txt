@@ -6,9 +6,7 @@ find_package(ament_cmake_auto REQUIRED)
 find_package(autoware_cmake REQUIRED)
 autoware_package()
 ## Find other dependencies
-find_package(autoware_sensing_msgs REQUIRED)
 find_package(geographic_msgs REQUIRED)
-set(geography_utils_DIR "/home/emre/ws_ariba/localisation/install/geography_utils/share/geography_utils/cmake")
 find_package(geography_utils REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -19,10 +17,6 @@ find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(Boost REQUIRED)
 find_package(message_filters REQUIRED)
-
-## GeographicLib Include and Link directories
-include_directories("/usr/include/GeographicLib")
-link_directories("/usr/lib/x86_64-linux-gnu")
 
 
 ## Define the headers for your package
@@ -48,7 +42,6 @@ rclcpp_components_register_node(gnss_poser_node
 ament_target_dependencies(gnss_poser_node
   rclcpp
   rclcpp_components
-  autoware_sensing_msgs
   geographic_msgs
   geography_utils
   geometry_msgs

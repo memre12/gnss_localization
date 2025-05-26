@@ -3,7 +3,7 @@
 <package format="3">
   <name>gnss_poser</name>
   <version>1.0.0</version>
-  <description>The ROS 2 gnss_poser package uses 2 gnss antenna to obtain the attitude of ego vehicle</description>
+  <description>The ROS 2 gnss_poser package uses 2 gnss antenna to obtain the pose of ego vehicle</description>
   <maintainer email="demirme22@itu.edu.tr">Your Name</maintainer>
   <license>Apache License 2.0</license>
   <url type="https://www.itusct.com/">Website</url>
@@ -14,7 +14,6 @@
   <build_depend>libboost-dev</build_depend>
 
 
-  <depend>autoware_sensing_msgs</depend>
   <depend>component_interface_specs</depend>  
   <depend>component_interface_utils</depend>
   <depend>geographic_msgs</depend>
