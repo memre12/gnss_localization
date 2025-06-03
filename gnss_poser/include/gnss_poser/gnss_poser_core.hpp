@@ -73,6 +73,7 @@ private:
   std::shared_ptr<message_filters::Synchronizer<SyncPolicy>> sync_;
 
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_cov_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_pub_;
 
   MapProjectorInfo::Message projector_info_;
   const std::string base_frame_;
@@ -82,6 +83,7 @@ private:
   std::string first_navsat_msg;
   std::string second_navsat_msg;
   std::string publish_topic_;
+  std::string publish_topic_pose_stamped_;
 };
 }  // namespace gnss_poser
 

@@ -20,7 +20,8 @@ GNSSPoser::GNSSPoser(const rclcpp::NodeOptions & node_options)
   map_frame_(declare_parameter<std::string>("map_frame")),
   first_navsat_msg(declare_parameter<std::string>("first_navsat_msg", "nav_sat_fix")),
   second_navsat_msg(declare_parameter<std::string>("second_navsat_msg", "nav_sat_fix2")),
-  publish_topic_(declare_parameter<std::string>("publish_topic", "gnss_pose_cov"))
+  publish_topic_(declare_parameter<std::string>("publish_topic", "gnss_pose_cov")),
+  publish_topic_pose_stamped_(declare_parameter<std::string>("publish_topic_pose_stamped", "gnss_pose_stamped"))
 {
   const auto adaptor = component_interface_utils::NodeAdaptor(this);
   adaptor.init_sub(
@@ -39,12 +40,13 @@ GNSSPoser::GNSSPoser(const rclcpp::NodeOptions & node_options)
   sync_->registerCallback(&GNSSPoser::syncCallback, this);
 
 
-  pose_cov_pub_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-    publish_topic_, rclcpp::QoS{1});
+  pose_cov_pub_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(publish_topic_, rclcpp::QoS{1});
+  pose_pub_ = create_publisher<geometry_msgs::msg::PoseStamped>(publish_topic_pose_stamped_, rclcpp::QoS{1});
   
   RCLCPP_INFO(
-    this->get_logger(), "GNSSPoser initialized with base_frame: %s, gnss_base_frame: %s, map_frame: %s, publish_topic: %s",
-    base_frame_.c_str(), gnss_base_frame_.c_str(), map_frame_.c_str(), publish_topic_.c_str());
+    this->get_logger(), "GNSSPoser initialized with base_frame: %s, gnss_base_frame: %s, map_frame: %s, publish_topic: %s, publish_topic_pose_stamped: %s",
+    base_frame_.c_str(), gnss_base_frame_.c_str(), map_frame_.c_str(),
+    publish_topic_.c_str(), publish_topic_pose_stamped_.c_str());
 }
 
 void GNSSPoser::syncCallback(
@@ -80,12 +82,27 @@ void GNSSPoser::syncCallback(
   pos1.z = geography_utils::convert_height(
     pos1.z, gps_point_1.latitude, gps_point_1.longitude, MapProjectorInfo::Message::WGS84,
     projector_info_.vertical_datum);
+  if (std::isnan(pos1.z)) {
+    RCLCPP_WARN_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+      "Height conversion failed for first GNSS point.");
+    pos1.z = 0.0;  // Default to zero if conversion fails
+  }
+
   pos2.z = geography_utils::convert_height(
     pos2.z, gps_point_2.latitude, gps_point_2.longitude, MapProjectorInfo::Message::WGS84,
     projector_info_.vertical_datum);
 
+  if (std::isnan(pos2.z)) {
+    RCLCPP_WARN_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+      "Height conversion failed for second GNSS point.");
+    pos2.z = 0.0;  // Default to zero if conversion fails
+  }
+
   tf2::Quaternion q;
   q.setRPY(0.0, 0.0, std::atan2(pos1.y - pos2.y, pos1.x - pos2.x));
+  q.normalize();
   geometry_msgs::msg::Quaternion orientation = tf2::toMsg(q);
 
   geometry_msgs::msg::PoseWithCovarianceStamped pose_cov_msg;
@@ -94,14 +111,6 @@ void GNSSPoser::syncCallback(
 
   pose_cov_msg.pose.pose.position = pos1;
   pose_cov_msg.pose.pose.orientation = orientation;
-
-  pose_cov_msg.pose.covariance[7 * 0] =
-    canGetCovariance(*nav_sat_fix_msg_ptr_1) ? nav_sat_fix_msg_ptr_1->position_covariance[0] : 10.0;
-  pose_cov_msg.pose.covariance[7 * 1] =
-    canGetCovariance(*nav_sat_fix_msg_ptr_1) ? nav_sat_fix_msg_ptr_1->position_covariance[1] : 10.0;
-  pose_cov_msg.pose.covariance[7 * 2] =
-    canGetCovariance(*nav_sat_fix_msg_ptr_1) ? nav_sat_fix_msg_ptr_1->position_covariance[2] : 10.0;
-
   double var_x1 = nav_sat_fix_msg_ptr_1->position_covariance[0];
   double var_y1 = nav_sat_fix_msg_ptr_1->position_covariance[4];
   double var_x2 = nav_sat_fix_msg_ptr_2->position_covariance[0];
@@ -111,13 +120,30 @@ void GNSSPoser::syncCallback(
   double dy = pos2.y - pos1.y;
   double magnitude = dx * dx + dy * dy;
 
-  // Error propagation for covariance
   if (magnitude < 1e-6) {
     RCLCPP_WARN_THROTTLE(
       this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
       "Positions are too close, covariance may not be reliable.");
     magnitude = 1.0;  // Avoid division by zero
   }
+  double yaw_cov = (dy * dy * (var_x1 + var_x2) + dx * dx * (var_y1 + var_y2)) / (magnitude * magnitude);
+
+  // minimum yaw variance threshold
+  if (yaw_cov < 1e-6) {
+    yaw_cov = 1e-6;
+  }
+
+  // Fill full 6x6 covariance matrix
+  pose_cov_msg.pose.covariance = {
+    var_x1, 0.0,    0.0,    0.0,    0.0,    0.0,
+    0.0,    var_y1, 0.0,    0.0,    0.0,    0.0,
+    0.0,    0.0,    10.0,   0.0,    0.0,    0.0,
+    0.0,    0.0,    0.0,    99999,  0.0,    0.0,
+    0.0,    0.0,    0.0,    0.0,    99999,  0.0,
+    0.0,    0.0,    0.0,    0.0,    0.0,    yaw_cov
+  };
+
+
   pose_cov_msg.pose.covariance[35] = (dy * dy * (var_x1 + var_x2) + dx * dx * (var_y1 + var_y2)) / (magnitude * magnitude);
   pose_cov_msg.pose.covariance[21] = 0.1;      // roll
   pose_cov_msg.pose.covariance[28] = 0.1;      // pitch
@@ -128,6 +154,7 @@ void GNSSPoser::syncCallback(
   pose_stamped.header.stamp = pose_cov_msg.header.stamp;
   pose_stamped.header.frame_id = pose_cov_msg.header.frame_id;
   pose_stamped.pose = pose_cov_msg.pose.pose;
+  pose_pub_->publish(pose_stamped);
   publishTF(
     map_frame_, gnss_base_frame_, pose_stamped);
   RCLCPP_INFO_THROTTLE(
