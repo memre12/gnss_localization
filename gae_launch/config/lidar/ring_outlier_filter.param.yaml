@@ -1,0 +1,27 @@
+/**:
+  ros__parameters:
+    input_frame: "lidar_top"
+    output_frame: "lidar_top"
+    max_queue_size: 5
+    use_indices: false
+    latched_indices: false
+    approximate_sync: false
+
+    distance_ratio: 1.03
+    object_length_threshold: 0.1
+    num_points_threshold: 4
+    max_rings_num: 128
+    max_points_num_per_ring: 4000
+    publish_outlier_pointcloud: false
+    min_azimuth_deg: 0.0
+    max_azimuth_deg: 360.0
+    max_distance: 12.0
+    vertical_bins: 128
+    horizontal_bins: 36
+    noise_threshold: 2
+    angular_velocity_offset_x: 0.0
+    angular_velocity_offset_y: 0.0
+    angular_velocity_offset_z: 0.0
+    angular_velocity_stddev_xx: 0.03
+    angular_velocity_stddev_yy: 0.03
+    angular_velocity_stddev_zz: 0.03

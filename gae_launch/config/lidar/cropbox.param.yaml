@@ -1,0 +1,11 @@
+/**:
+  ros__parameters:
+    input_frame: "lidar_top"
+    output_frame: "base_link"
+    min_x: -200.0
+    max_x: 1000.0
+    min_y: -50.0
+    max_y: 50.0
+    min_z: -2.0
+    max_z: 3.0
+    negative: False

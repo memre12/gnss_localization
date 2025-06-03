@@ -1,0 +1,39 @@
+/**:
+  ros__parameters:
+    user_defined_initial_pose:
+      enable: false
+      pose: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+    gnss_pose_timeout: 3.0 # [sec]
+    stop_check_duration: 3.0 # [sec]
+    ekf_enabled: true
+    gnss_enabled: true
+    yabloc_enabled: false
+    ndt_enabled: true
+    stop_check_enabled: false
+
+    # from gnss
+    gnss_particle_covariance:
+      [
+        1.0, 0.0, 0.0,  0.0,  0.0,  0.0,
+        0.0, 1.0, 0.0,  0.0,  0.0,  0.0,
+        0.0, 0.0, 0.01, 0.0,  0.0,  0.0,
+        0.0, 0.0, 0.0,  0.01, 0.0,  0.0,
+        0.0, 0.0, 0.0,  0.0,  0.01, 0.0,
+        0.0, 0.0, 0.0,  0.0,  0.0,  10.0,
+      ]
+
+    # output
+    output_pose_covariance:
+      [
+        1.0, 0.0, 0.0,  0.0,  0.0,  0.0,
+        0.0, 1.0, 0.0,  0.0,  0.0,  0.0,
+        0.0, 0.0, 0.01, 0.0,  0.0,  0.0,
+        0.0, 0.0, 0.0,  0.01, 0.0,  0.0,
+        0.0, 0.0, 0.0,  0.0,  0.01, 0.0,
+        0.0, 0.0, 0.0,  0.0,  0.0,  0.2,
+      ]
+    
+    map_height_fitter:
+      map_loader_name: /pointcloud_map_loader
+      target: pointcloud_map

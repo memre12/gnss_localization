@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot name="vehicle_sensors" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <link name="base_link"/>
+  <link name="sensor_kit_base_link"/>
+  <joint name="base_to_sensor_kit" type="fixed">
+    <parent link="base_link"/>
+    <child link="sensor_kit_base_link"/>
+    <origin xyz="0.8 0.0 1.25" rpy="0 0 0"/>
+  </joint>
+
+  <link name="lidar_top"/>
+  <joint name="sensor_kit_to_lidar" type="fixed">
+    <parent link="sensor_kit_base_link"/>
+    <child link="lidar_top"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="gnss_link"/>
+  <joint name="sensor_kit_to_gnss" type="fixed">
+    <parent link="sensor_kit_base_link"/>
+    <child link="gnss_link"/>
+    <origin xyz="0.6 0.0 0.6" rpy="0 0 0"/>
+  </joint>
+
+  <link name="imu_link"/>
+  <joint name="sensor_kit_to_imu" type="fixed">
+    <parent link="sensor_kit_base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0.6 0.0 0.6" rpy="0 0 0"/>
+  </joint>
+
+  <link name="zed_camera_center"/>
+  <joint name="sensor_kit_to_zed" type="fixed">
+    <parent link="sensor_kit_base_link"/>
+    <child link="zed_camera_center"/>
+    <origin xyz="0.05 0.0 0.0" rpy="0 0 0"/>
+  </joint>
+</robot>

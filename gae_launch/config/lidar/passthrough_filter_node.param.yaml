@@ -1,0 +1,9 @@
+/**:
+  ros__parameters:
+    filter_field_name: "ring"
+    filter_limit_min: 0
+    filter_limit_max: 90
+    filter_limit_negative: false
+    keep_organized: false
+    input_frame: "lidar_top"
+    output_frame: "lidar_top"
