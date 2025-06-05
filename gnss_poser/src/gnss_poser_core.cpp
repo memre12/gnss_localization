@@ -109,7 +109,7 @@ void GNSSPoser::syncCallback(
   pose_cov_msg.header.stamp = nav_sat_fix_msg_ptr_1->header.stamp;
   pose_cov_msg.header.frame_id = map_frame_;
 
-  pose_cov_msg.pose.pose.position = pos1;
+  pose_cov_msg.pose.pose.position = pos2;
   pose_cov_msg.pose.pose.orientation = orientation;
   double var_x1 = nav_sat_fix_msg_ptr_1->position_covariance[0];
   double var_y1 = nav_sat_fix_msg_ptr_1->position_covariance[4];
