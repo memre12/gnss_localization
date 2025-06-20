@@ -155,8 +155,8 @@ void GNSSPoser::syncCallback(
   pose_stamped.header.frame_id = pose_cov_msg.header.frame_id;
   pose_stamped.pose = pose_cov_msg.pose.pose;
   pose_pub_->publish(pose_stamped);
-  publishTF(
-    map_frame_, gnss_base_frame_, pose_stamped);
+  // publishTF(
+  //   map_frame_, gnss_base_frame_, pose_stamped);
   RCLCPP_INFO_THROTTLE(
     this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
     "Position published: x=%.2f, y=%.2f, z=%.2f",

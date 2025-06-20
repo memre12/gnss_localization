@@ -19,5 +19,6 @@ install(DIRECTORY
   config
   urdf
   rviz
+  scripts
   DESTINATION share/${PROJECT_NAME})
 ament_package()

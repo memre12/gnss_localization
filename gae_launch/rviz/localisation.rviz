@@ -185,6 +185,16 @@ Visualization Manager:
         All Enabled: true
         base_link:
           Value: true
+        gnss_link:
+          Value: true
+        gnss_link2:
+          Value: true
+        imu_link:
+          Value: true
+        imu_link2:
+          Value: true
+        lidar_top_link:
+          Value: true
         map:
           Value: true
         viewer:
@@ -197,7 +207,16 @@ Visualization Manager:
       Tree:
         map:
           base_link:
-            {}
+            gnss_link:
+              {}
+            gnss_link2:
+              {}
+            imu_link:
+              {}
+            imu_link2:
+              {}
+            lidar_top_link:
+              {}
           viewer:
             {}
       Update Interval: 0
@@ -257,11 +276,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 24.68999481201172
+      Scale: 17.262523651123047
       Target Frame: viewer
       Value: TopDownOrtho (rviz_default_plugins)
-      X: -48.380775451660156
-      Y: 73.14241790771484
+      X: 71.33137512207031
+      Y: -92.40780639648438
     Saved: ~
 Window Geometry:
   Displays:

@@ -101,16 +101,17 @@ class RetimerNode(Node):
 
     def callback(self, msg):
         msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = 'imu_link2'
         self.publisher.publish(msg)
 
     def callback_imu(self, msg):
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'base_link'
+        msg.header.frame_id = 'imu_link2'
         self.publisher_imu.publish(msg)
 
     def callback_gnss(self, msg):
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'base_link'
+        msg.header.frame_id = 'gnss_link'
         self.publisher_gnss.publish(msg)
 
     def callback_gnss_orientation(self, msg):
@@ -130,7 +131,7 @@ class RetimerNode(Node):
     
     def callback_gnss2(self, msg):
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'base_link'
+        msg.header.frame_id = 'gnss_link2'
         self.publisher_gnss2.publish(msg)
 
         

@@ -1,6 +1,6 @@
 # Dual Antenna GNSS Localization - ROS 2 Setup
 
-This guide outlines the steps to run the dual antenna GNSS localization system using ROS 2 and Autoware.
+This guide outlines the steps to run the dual antenna GNSS localization system.
 
 ---
 
@@ -13,12 +13,12 @@ Make sure you have sourced the Autoware workspace:
 colcon build --symlink-install
 
 ## Play ros2 bag 
- ros2 bag play notf_nobaddata_drive --start-offset 70
+ ros2 bag play notf_nobaddata_drive
 
 ## Run python3 scripts
 
-python3 retimer.py 
-python3 twist_to_twist_cov.py 
+python3 gae_launch/scripts/retimer.py 
+
 
 ## Launch Localization Packages
 
