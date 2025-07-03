@@ -111,14 +111,17 @@ void GNSSPoser::syncCallback(
 
   pose_cov_msg.pose.pose.position = pos2;
   pose_cov_msg.pose.pose.orientation = orientation;
-  double var_x1 = nav_sat_fix_msg_ptr_1->position_covariance[0];
-  double var_y1 = nav_sat_fix_msg_ptr_1->position_covariance[4];
-  double var_x2 = nav_sat_fix_msg_ptr_2->position_covariance[0];
-  double var_y2 = nav_sat_fix_msg_ptr_2->position_covariance[4];
+  double var_x1 = nav_sat_fix_msg_ptr_1->position_covariance[0]; // x variance
+  double var_y1 = nav_sat_fix_msg_ptr_1->position_covariance[4]; // y variance
+  double var_z1 = nav_sat_fix_msg_ptr_1->position_covariance[8]; // z variance
+  double var_x2 = nav_sat_fix_msg_ptr_2->position_covariance[0]; // x variance
+  double var_y2 = nav_sat_fix_msg_ptr_2->position_covariance[4]; // y variance
+  double var_z2 = nav_sat_fix_msg_ptr_2->position_covariance[8]; // z variance
 
   double dx = pos2.x - pos1.x;
   double dy = pos2.y - pos1.y;
   double magnitude = dx * dx + dy * dy;
+
 
   if (magnitude < 1e-6) {
     RCLCPP_WARN_THROTTLE(
@@ -126,7 +129,12 @@ void GNSSPoser::syncCallback(
       "Positions are too close, covariance may not be reliable.");
     magnitude = 1.0;  // Avoid division by zero
   }
-  double yaw_cov = (dy * dy * (var_x1 + var_x2) + dx * dx * (var_y1 + var_y2)) / (magnitude * magnitude);
+  // Error propagation for yaw covariance for: std::atan2(dy, dx)
+  double yaw_cov = (dy * dy * (var_x1 + var_x2) + dx * dx * (var_y1 + var_y2)) / (magnitude * magnitude);   
+  // Average x ,y, z variance: A+B -> varA + varB
+  double var_x = (var_x1 + var_x2) / 4.0;
+  double var_y = (var_y1 + var_y2) / 4.0;
+  double var_z = (var_z1 + var_z2) / 4.0;                                                                   
 
   // minimum yaw variance threshold
   if (yaw_cov < 1e-6) {
@@ -135,19 +143,13 @@ void GNSSPoser::syncCallback(
 
   // Fill full 6x6 covariance matrix
   pose_cov_msg.pose.covariance = {
-    var_x1, 0.0,    0.0,    0.0,    0.0,    0.0,
-    0.0,    var_y1, 0.0,    0.0,    0.0,    0.0,
-    0.0,    0.0,    10.0,   0.0,    0.0,    0.0,
-    0.0,    0.0,    0.0,    99999,  0.0,    0.0,
-    0.0,    0.0,    0.0,    0.0,    99999,  0.0,
-    0.0,    0.0,    0.0,    0.0,    0.0,    yaw_cov
+    var_x, 0.0,    0.0,    0.0,    0.0,    0.0,              // position x
+    0.0,    var_y, 0.0,    0.0,    0.0,    0.0,              // position y
+    0.0,    0.0,    var_z,   0.0,    0.0,    0.0,              // position z 
+    0.0,    0.0,    0.0,    0.1,  0.0,    0.0,                // roll not calculated
+    0.0,    0.0,    0.0,    0.0,    0.1,  0.0,                // pitch not calculated
+    0.0,    0.0,    0.0,    0.0,    0.0,    yaw_cov           // yaw
   };
-
-
-  pose_cov_msg.pose.covariance[35] = (dy * dy * (var_x1 + var_x2) + dx * dx * (var_y1 + var_y2)) / (magnitude * magnitude);
-  pose_cov_msg.pose.covariance[21] = 0.1;      // roll
-  pose_cov_msg.pose.covariance[28] = 0.1;      // pitch
-
 
   pose_cov_pub_->publish(pose_cov_msg);
   geometry_msgs::msg::PoseStamped pose_stamped;

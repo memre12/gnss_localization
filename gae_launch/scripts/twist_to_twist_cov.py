@@ -29,7 +29,7 @@ class TwistToTwistCov(Node):
         twist_cov_msg.twist.covariance[28] = 0.5
         twist_cov_msg.twist.covariance[35] = 0.5
         self.publisher.publish(twist_cov_msg)
-        self.get_logger().info('Published TwistWithCovarianceStamped message.')
+        # self.get_logger().info('Published TwistWithCovarianceStamped message.')
 
 def main(args=None):
     rclpy.init(args=args)
